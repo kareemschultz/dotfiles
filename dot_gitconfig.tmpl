@@ -1,6 +1,6 @@
 [user]
-    name = {{ .name }}
-    email = {{ .email }}
+    name = {{ .name | default "Karetech User" }}
+    email = {{ .email | default "user@example.com" }}
 
 [core]
     editor = nano
@@ -115,7 +115,7 @@
     unstage = reset HEAD --
     undo = reset --soft HEAD~1
     undohard = reset --hard HEAD~1
-    clean-branches = "!git branch --merged | grep -v '\*\|main\|master\|develop' | xargs -n 1 git branch -d"
+    clean-branches = "!git branch --merged | grep -v '\\*\\|main\\|master\\|develop' | xargs -n 1 git branch -d"
     
     # Worktree
     wt = worktree
