@@ -1,10 +1,53 @@
+# Chezmoi ignore rules
+# Files and directories to ignore based on platform and profile
+
 README.md
-scripts/
+LICENSE
 docs/
-generate_dotfiles.py
-{{- if .isWindows }}
-.bashrc
+install.sh
+
+# OS-specific ignores
+{{- if ne .chezmoi.os "darwin" }}
+.macos
 {{- end }}
-{{- if not .isWindows }}
+
+{{- if ne .chezmoi.os "linux" }}
+.linux
+{{- end }}
+
+{{- if ne .chezmoi.os "windows" }}
+.windows
+{{- end }}
+
+# WSL-specific ignores
+{{- if not (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) }}
+.wsl
+{{- end }}
+
+# Profile-specific ignores
+{{- if ne .profile "work" }}
+.work
+{{- end }}
+
+{{- if ne .profile "development" }}
+.development
+{{- end }}
+
+{{- if ne .profile "personal" }}
+.personal
+{{- end }}
+
+# Tool-specific ignores
+{{- if not (lookPath "tmux") }}
+.tmux.conf*
+{{- end }}
+
+{{- if not (lookPath "code") }}
 .config/Code/
 {{- end }}
+
+# Temporary and cache files
+*.tmp
+*.cache
+.DS_Store
+Thumbs.db
