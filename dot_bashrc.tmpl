@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Karetech Bash Configuration
+{{- if .name }}
 # Owner: {{ .name }} <{{ .email }}>
+{{- else }}
+# Owner: Kareem Schultz <kareemschultz46@gmail.com>
+{{- end }}
 
 # ============================================================================
 # BASIC BASH SETTINGS
