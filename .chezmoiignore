@@ -1,0 +1,10 @@
+README.md
+scripts/
+docs/
+generate_dotfiles.py
+{{- if .isWindows }}
+.bashrc
+{{- end }}
+{{- if not .isWindows }}
+.config/Code/
+{{- end }}
