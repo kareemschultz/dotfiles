@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 # Karetech Bash Configuration
-{{- if .name }}
-# Owner: {{ .name }} <{{ .email }}>
-{{- else }}
-# Owner: Kareem Schultz <kareemschultz46@gmail.com>
-{{- end }}
+# Owner: {{ .name | default "Karetech User" }} <{{ .email | default "user@example.com" }}>
 
 # ============================================================================
 # BASIC BASH SETTINGS
@@ -69,7 +65,12 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
 # Enhanced tools (if available)
-if command -v exa &> /dev/null; then
+if command -v eza &> /dev/null; then
+    alias ls='eza --icons --group-directories-first'
+    alias ll='eza -l --icons --group-directories-first --git'
+    alias la='eza -la --icons --group-directories-first --git'
+    alias lt='eza --tree --icons'
+elif command -v exa &> /dev/null; then
     alias ls='exa --icons --group-directories-first'
     alias ll='exa -l --icons --group-directories-first --git'
     alias la='exa -la --icons --group-directories-first --git'
@@ -171,5 +172,5 @@ fi
 [ -f ~/.bashrc.local ] && source ~/.bashrc.local
 
 echo "✨ Karetech Bash Environment Ready!"
-echo "   User: {{ .name }}"
-echo "   Profile: {{ .profile }}"
+echo "   User: {{ .name | default "Karetech User" }}"
+echo "   Profile: {{ .profile | default "personal" }}"
