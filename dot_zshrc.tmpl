@@ -1,0 +1,481 @@
+#!/usr/bin/env zsh
+# Karetech ZSH Configuration
+# Owner: {{ .name }} <{{ .email }}>
+# Profile: {{ .profile }}
+
+# ============================================================================
+# OH-MY-ZSH SETUP
+# ============================================================================
+
+export ZSH="$HOME/.oh-my-zsh"
+
+plugins=(
+    git
+    docker
+    kubectl
+    aws
+    npm
+    yarn
+    node
+    python
+    terraform
+    ansible
+    {{- if .isLinux }}
+    systemd
+    {{- end }}
+    {{- if .isMacOS }}
+    brew
+    macos
+    {{- end }}
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+    fzf
+    z
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# ============================================================================
+# OH-MY-POSH PROMPT
+# ============================================================================
+
+eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/jandedobbeleer.omp.json)"
+
+# ============================================================================
+# ENVIRONMENT VARIABLES
+# ============================================================================
+
+export EDITOR="nano"
+export VISUAL="code"
+export BROWSER="open"
+
+# Add local bin to PATH
+export PATH="$HOME/.local/bin:$PATH"
+
+{{- if .isMacOS }}
+# Homebrew PATH
+if [[ -f /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -f /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{- end }}
+
+# ============================================================================
+# MODERN UNIX TOOLS ALIASES
+# ============================================================================
+
+# Enhanced ls with exa
+if command -v exa &> /dev/null; then
+    alias ls='exa --icons --group-directories-first'
+    alias ll='exa -l --icons --group-directories-first --git'
+    alias la='exa -la --icons --group-directories-first --git'
+    alias lt='exa --tree --icons --group-directories-first'
+    alias l='exa --icons'
+else
+    alias ll='ls -alF'
+    alias la='ls -A'
+    alias l='ls -CF'
+fi
+
+# Enhanced cat with bat
+if command -v bat &> /dev/null; then
+    alias cat='bat --style=header,rule,snip,changes'
+    alias less='bat --style=header,rule,snip,changes'
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
+
+# Enhanced find with fd
+if command -v fd &> /dev/null; then
+    alias find='fd'
+fi
+
+# Enhanced grep with ripgrep
+if command -v rg &> /dev/null; then
+    alias grep='rg'
+fi
+
+# Smart cd with zoxide
+if command -v zoxide &> /dev/null; then
+    eval "$(zoxide init zsh)"
+    alias cd='z'
+fi
+
+# ============================================================================
+# GIT ALIASES
+# ============================================================================
+
+alias gs='git status'
+alias ga='git add'
+alias gaa='git add .'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gca='git commit -am'
+alias gp='git push'
+alias gpl='git pull'
+alias gpf='git push --force-with-lease'
+alias gd='git diff'
+alias gdc='git diff --cached'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias gb='git branch'
+alias gbd='git branch -d'
+alias gbD='git branch -D'
+alias glog='git log --oneline --graph --decorate --all'
+alias glp='git log --pretty=format:"%C(yellow)%h%C(reset) - %C(green)(%cr)%C(reset) %s %C(blue)<%an>%C(reset)"'
+alias gstash='git stash'
+alias gunstash='git stash pop'
+alias gclean='git clean -fd'
+alias greset='git reset --hard'
+alias gundo='git reset --soft HEAD~1'
+
+# ============================================================================
+# DEVELOPMENT ALIASES
+# ============================================================================
+
+# VS Code
+alias c='code'
+alias c.='code .'
+alias cw='code -n .'
+
+# Docker
+alias d='docker'
+alias dps='docker ps'
+alias dpa='docker ps -a'
+alias di='docker images'
+alias dc='docker-compose'
+alias dcu='docker-compose up'
+alias dcd='docker-compose down'
+alias dcb='docker-compose build'
+alias dcl='docker-compose logs'
+alias dcp='docker-compose pull'
+alias dlog='docker logs'
+alias dexec='docker exec -it'
+
+# Kubernetes
+alias k='kubectl'
+alias kgp='kubectl get pods'
+alias kgs='kubectl get services'
+alias kgd='kubectl get deployments'
+alias kgn='kubectl get nodes'
+alias kdp='kubectl describe pod'
+alias kds='kubectl describe service'
+alias kdd='kubectl describe deployment'
+alias kaf='kubectl apply -f'
+alias kdf='kubectl delete -f'
+alias ktop='kubectl top'
+
+# NPM/Node/Yarn
+alias ni='npm install'
+alias ns='npm start'
+alias nt='npm test'
+alias nb='npm run build'
+alias nrd='npm run dev'
+alias npx='npx --yes'
+alias yi='yarn install'
+alias ys='yarn start'
+alias yt='yarn test'
+alias yb='yarn build'
+alias yd='yarn dev'
+
+# Python
+alias py='python3'
+alias pip='pip3'
+alias venv='python3 -m venv'
+alias activate='source venv/bin/activate'
+alias req='pip freeze > requirements.txt'
+alias pipi='pip install'
+alias pipu='pip install --upgrade'
+
+# Terraform
+alias tf='terraform'
+alias tfi='terraform init'
+alias tfp='terraform plan'
+alias tfa='terraform apply'
+alias tfd='terraform destroy'
+alias tfv='terraform validate'
+alias tff='terraform fmt'
+
+# ============================================================================
+# PLATFORM-SPECIFIC SETTINGS
+# ============================================================================
+
+{{- if .isWindows }}
+# Windows/WSL specific
+alias open='explorer.exe'
+alias pbcopy='clip.exe'
+alias pbpaste='powershell.exe Get-Clipboard'
+
+# WSL display
+if grep -qi microsoft /proc/version 2>/dev/null; then
+    export DISPLAY=$(awk '/nameserver / {print $2; exit}' /etc/resolv.conf 2>/dev/null):0
+    export LIBGL_ALWAYS_INDIRECT=1
+fi
+{{- end }}
+
+{{- if .isMacOS }}
+# macOS specific
+alias showfiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder'
+alias hidefiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder'
+alias flushdns='sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+{{- end }}
+
+{{- if .isLinux }}
+# Linux specific
+alias open='xdg-open'
+alias pbcopy='xclip -selection clipboard'
+alias pbpaste='xclip -selection clipboard -o'
+
+# System updates
+{{- if eq .chezmoi.osRelease.id "ubuntu" }}
+alias update='sudo apt update && sudo apt upgrade'
+alias install='sudo apt install'
+alias search='apt search'
+{{- else if eq .chezmoi.osRelease.id "arch" }}
+alias update='sudo pacman -Syu'
+alias install='sudo pacman -S'
+alias search='pacman -Ss'
+{{- else if eq .chezmoi.osRelease.id "fedora" }}
+alias update='sudo dnf update'
+alias install='sudo dnf install'
+alias search='dnf search'
+{{- end }}
+{{- end }}
+
+# ============================================================================
+# FZF CONFIGURATION
+# ============================================================================
+
+if command -v fzf &> /dev/null; then
+    export FZF_DEFAULT_OPTS="
+        --height 40% 
+        --layout=reverse 
+        --border 
+        --preview 'bat --color=always --style=header,grid --line-range :300 {} 2>/dev/null || cat {} 2>/dev/null || echo "Directory: {}"'
+        --color=bg+:#3c3836,bg:#32302f,spinner:#fb4934,hl:#928374
+        --color=fg:#ebdbb2,header:#928374,info:#8ec07c,pointer:#fb4934
+        --color=marker:#fb4934,fg+:#ebdbb2,prompt:#fb4934,hl+:#fb4934"
+    
+    if command -v fd &> /dev/null; then
+        export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+        export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+        export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+    fi
+    
+    # Key bindings and completion
+    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+    
+    # Custom FZF functions
+    fcd() {
+        local dir
+        dir=$(find ${1:-.} -type d 2> /dev/null | fzf +m) && cd "$dir"
+    }
+    
+    fkill() {
+        local pid
+        pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
+        if [ "x$pid" != "x" ]; then
+            echo $pid | xargs kill -${1:-9}
+        fi
+    }
+fi
+
+# ============================================================================
+# USEFUL FUNCTIONS
+# ============================================================================
+
+# Create directory and cd into it
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Extract various archive formats
+extract() {
+    if [ -f "$1" ]; then
+        case $1 in
+            *.tar.bz2)   tar xjf "$1"     ;;
+            *.tar.gz)    tar xzf "$1"     ;;
+            *.bz2)       bunzip2 "$1"     ;;
+            *.rar)       unrar x "$1"     ;;
+            *.gz)        gunzip "$1"      ;;
+            *.tar)       tar xf "$1"      ;;
+            *.tbz2)      tar xjf "$1"     ;;
+            *.tgz)       tar xzf "$1"     ;;
+            *.zip)       unzip "$1"       ;;
+            *.Z)         uncompress "$1"  ;;
+            *.7z)        7z x "$1"        ;;
+            *)           echo "'$1' cannot be extracted" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# Quick HTTP server
+serve() {
+    local port=${1:-8000}
+    if command -v python3 &> /dev/null; then
+        echo "🌐 Server running at http://localhost:$port"
+        python3 -m http.server $port
+    elif command -v python &> /dev/null; then
+        echo "🌐 Server running at http://localhost:$port"
+        python -m SimpleHTTPServer $port
+    else
+        echo "❌ Python not found"
+        return 1
+    fi
+}
+
+# Find and kill process
+killp() {
+    if [ -z "$1" ]; then
+        echo "Usage: killp <process_name>"
+        return 1
+    fi
+    
+    local pids=$(pgrep -f "$1")
+    if [ -z "$pids" ]; then
+        echo "No processes found matching '$1'"
+        return 1
+    fi
+    
+    echo "Found processes:"
+    ps -p $pids -o pid,ppid,cmd
+    
+    read "?Kill these processes? (y/N) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        kill $pids
+        echo "✅ Processes killed."
+    else
+        echo "❌ Cancelled."
+    fi
+}
+
+# Git clone and cd
+gclone() {
+    if [ -z "$1" ]; then
+        echo "Usage: gclone <repository_url>"
+        return 1
+    fi
+    git clone "$1" && cd "$(basename "$1" .git)"
+}
+
+# Create new project
+newproject() {
+    if [ -z "$1" ]; then
+        echo "Usage: newproject <project_name>"
+        return 1
+    fi
+    
+    mkcd "$1"
+    git init
+    echo "# $1" > README.md
+    echo -e "node_modules/\n.env\n.DS_Store\n*.log\n.vscode/\n.idea/" > .gitignore
+    
+    echo "✅ Project '$1' created and initialized!"
+}
+
+# Weather function
+weather() {
+    local location=${1:-""}
+    curl -s "wttr.in/$location?format=3"
+}
+
+# IP information
+myip() {
+    echo "Public IP: $(curl -s ifconfig.me)"
+    echo "Local IP: $(hostname -I | awk '{print $1}')"
+}
+
+# System information
+sysinfo() {
+    echo "🖥️  System Information"
+    echo "===================="
+    echo "OS: $(uname -s)"
+    echo "Kernel: $(uname -r)"
+    echo "Architecture: $(uname -m)"
+    echo "Hostname: $(hostname)"
+    echo "Uptime: $(uptime | awk -F'up ' '{print $2}' | awk -F', load' '{print $1}')"
+    echo "Shell: $SHELL"
+}
+
+# Directory size
+dirsize() {
+    du -sh ${1:-.} | sort -hr
+}
+
+# Port check
+portcheck() {
+    if [ -z "$1" ]; then
+        echo "Usage: portcheck <port>"
+        return 1
+    fi
+    
+    if command -v lsof &> /dev/null; then
+        lsof -i :$1
+    elif command -v netstat &> /dev/null; then
+        netstat -tuln | grep :$1
+    else
+        echo "Neither lsof nor netstat found"
+    fi
+}
+
+# Backup function
+backup() {
+    if [ -z "$1" ]; then
+        echo "Usage: backup <file_or_directory>"
+        return 1
+    fi
+    
+    local item="$1"
+    local backup_name="${item%.${item##*.}}_backup_$(date +%Y%m%d_%H%M%S).${item##*.}"
+    
+    if [ -d "$item" ]; then
+        backup_name="${item%/}_backup_$(date +%Y%m%d_%H%M%S)"
+    fi
+    
+    cp -r "$item" "$backup_name"
+    echo "✅ Backup created: $backup_name"
+}
+
+# ============================================================================
+# PROFILE SPECIFIC SETTINGS
+# ============================================================================
+
+{{- if eq .profile "work" }}
+# Work profile settings
+export NODE_ENV="production"
+echo "🏢 Work Profile Loaded"
+
+# Work-specific aliases
+alias vpn-status='ping -c 1 internal.company.com &>/dev/null && echo "✅ VPN Connected" || echo "❌ VPN Disconnected"'
+
+{{- else if eq .profile "development" }}
+# Development profile settings
+export NODE_ENV="development"
+export PYTHONPATH="${PYTHONPATH}:${HOME}/dev/python"
+echo "🚀 Development Profile Loaded"
+
+# Development-specific aliases
+alias devserver='npm run dev || yarn dev || python manage.py runserver'
+alias testall='npm test && python -m pytest'
+
+{{- else }}
+# Personal profile settings
+echo "🏠 Personal Profile Loaded"
+
+# Personal aliases
+alias todo='nano ~/todo.txt'
+alias notes='nano ~/notes.txt'
+{{- end }}
+
+# Load local customizations
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local
+
+# Welcome message
+echo "✨ Karetech Environment Ready!"
+echo "   User: {{ .name }}"
+echo "   Platform: {{ .chezmoi.os }}"
+echo "   Profile: {{ .profile }}"
+echo "   Time: $(date '+%Y-%m-%d %H:%M:%S')"

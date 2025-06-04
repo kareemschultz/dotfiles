@@ -1,0 +1,182 @@
+[user]
+    name = {{ .name }}
+    email = {{ .email }}
+
+[core]
+    editor = nano
+    autocrlf = {{ if .isWindows }}true{{ else }}input{{ end }}
+    filemode = {{ if .isWindows }}false{{ else }}true{{ end }}
+    pager = delta
+    excludesfile = ~/.gitignore_global
+
+[init]
+    defaultBranch = main
+
+[push]
+    default = simple
+    autoSetupRemote = true
+    followTags = true
+
+[pull]
+    rebase = false
+
+[merge]
+    tool = vscode
+    conflictstyle = diff3
+
+[mergetool "vscode"]
+    cmd = code --wait $MERGED
+
+[diff]
+    tool = vscode
+    colorMoved = default
+    algorithm = histogram
+
+[difftool "vscode"]
+    cmd = code --wait --diff $LOCAL $REMOTE
+
+[delta]
+    navigate = true
+    light = false
+    line-numbers = true
+    syntax-theme = gruvbox-dark
+    side-by-side = false
+    features = decorations
+
+[delta "decorations"]
+    commit-decoration-style = bold yellow box ul
+    file-style = bold yellow ul
+    file-decoration-style = none
+    hunk-header-decoration-style = cyan box ul
+
+[interactive]
+    diffFilter = delta --color-only
+
+[alias]
+    # Status and info
+    st = status
+    s = status --short
+    ss = status --short --branch
+    
+    # Add and commit
+    a = add
+    aa = add .
+    ap = add --patch
+    c = commit
+    cm = commit -m
+    ca = commit -am
+    amend = commit --amend
+    amendn = commit --amend --no-edit
+    
+    # Push and pull
+    p = push
+    pl = pull
+    pf = push --force-with-lease
+    pu = push -u origin HEAD
+    
+    # Branch management
+    b = branch
+    ba = branch -a
+    bd = branch -d
+    bD = branch -D
+    co = checkout
+    cb = checkout -b
+    sw = switch
+    swc = switch -c
+    
+    # Log and history
+    l = log --oneline
+    lg = log --oneline --graph --decorate --all
+    lp = log --pretty=format:'%C(yellow)%h%C(reset) - %C(green)(%cr)%C(reset) %s %C(blue)<%an>%C(reset)'
+    ll = log --stat
+    ln = log --name-only
+    
+    # Diff
+    d = diff
+    dc = diff --cached
+    ds = diff --stat
+    dn = diff --name-only
+    
+    # Stash
+    st = stash
+    stp = stash pop
+    stl = stash list
+    sts = stash show
+    sta = stash apply
+    std = stash drop
+    
+    # Remote
+    r = remote
+    rv = remote -v
+    ra = remote add
+    rr = remote remove
+    
+    # Reset and clean
+    unstage = reset HEAD --
+    undo = reset --soft HEAD~1
+    undohard = reset --hard HEAD~1
+    clean-branches = "!git branch --merged | grep -v '\*\|main\|master\|develop' | xargs -n 1 git branch -d"
+    
+    # Worktree
+    wt = worktree
+    wta = worktree add
+    wtl = worktree list
+    wtr = worktree remove
+    
+    # Misc
+    ignore = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi"
+    alias = config --get-regexp alias
+    last = log -1 HEAD --stat
+    visual = !gitk
+
+[color]
+    ui = auto
+    branch = auto
+    diff = auto
+    status = auto
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+    whitespace = red reverse
+
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = cyan
+
+[rerere]
+    enabled = true
+
+[help]
+    autocorrect = 1
+
+[fetch]
+    prune = true
+
+[rebase]
+    autoStash = true
+
+{{- if eq .profile "work" }}
+[url "https://github.com/company/"]
+    insteadOf = git@github.com:company/
+
+[commit]
+    gpgsign = true
+
+[gpg]
+    program = gpg
+{{- end }}
+
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true

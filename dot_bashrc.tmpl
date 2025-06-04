@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+# Karetech Bash Configuration
+# Owner: {{ .name }} <{{ .email }}>
+
+# ============================================================================
+# BASIC BASH SETTINGS
+# ============================================================================
+
+# Don't put duplicate lines or lines starting with space in the history
+HISTCONTROL=ignoreboth
+
+# Append to the history file, don't overwrite it
+shopt -s histappend
+
+# Set history length
+HISTSIZE=10000
+HISTFILESIZE=20000
+
+# Check the window size after each command
+shopt -s checkwinsize
+
+# Enable color support
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+fi
+
+# ============================================================================
+# OH-MY-POSH PROMPT
+# ============================================================================
+
+if command -v oh-my-posh &> /dev/null; then
+    eval "$(oh-my-posh init bash --config ~/.config/oh-my-posh/jandedobbeleer.omp.json)"
+else
+    # Fallback colorful prompt
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+fi
+
+# ============================================================================
+# ENVIRONMENT VARIABLES
+# ============================================================================
+
+export EDITOR="nano"
+export VISUAL="code"
+export PATH="$HOME/.local/bin:$PATH"
+
+{{- if .isMacOS }}
+# Homebrew PATH
+if [[ -f /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -f /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{- end }}
+
+# ============================================================================
+# ALIASES
+# ============================================================================
+
+# Basic aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# Enhanced tools (if available)
+if command -v exa &> /dev/null; then
+    alias ls='exa --icons --group-directories-first'
+    alias ll='exa -l --icons --group-directories-first --git'
+    alias la='exa -la --icons --group-directories-first --git'
+    alias lt='exa --tree --icons'
+fi
+
+if command -v bat &> /dev/null; then
+    alias cat='bat --style=header,rule,snip,changes'
+    alias less='bat --style=header,rule,snip,changes'
+fi
+
+if command -v fd &> /dev/null; then
+    alias find='fd'
+fi
+
+if command -v rg &> /dev/null; then
+    alias grep='rg'
+fi
+
+# Git aliases (same as ZSH)
+alias gs='git status'
+alias ga='git add'
+alias gaa='git add .'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gp='git push'
+alias gpl='git pull'
+alias gd='git diff'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias gb='git branch'
+alias glog='git log --oneline --graph --decorate --all'
+
+# Development aliases
+alias c='code'
+alias c.='code .'
+alias py='python3'
+alias serve='python3 -m http.server'
+
+# Docker aliases
+alias d='docker'
+alias dps='docker ps'
+alias di='docker images'
+alias dc='docker-compose'
+
+# Platform specific
+{{- if .isLinux }}
+alias open='xdg-open'
+alias pbcopy='xclip -selection clipboard'
+alias pbpaste='xclip -selection clipboard -o'
+{{- end }}
+
+{{- if .isMacOS }}
+alias showfiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder'
+alias hidefiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder'
+{{- end }}
+
+# ============================================================================
+# FUNCTIONS (subset of ZSH functions)
+# ============================================================================
+
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+extract() {
+    if [ -f "$1" ]; then
+        case $1 in
+            *.tar.bz2)   tar xjf "$1"     ;;
+            *.tar.gz)    tar xzf "$1"     ;;
+            *.bz2)       bunzip2 "$1"     ;;
+            *.rar)       unrar x "$1"     ;;
+            *.gz)        gunzip "$1"      ;;
+            *.tar)       tar xf "$1"      ;;
+            *.zip)       unzip "$1"       ;;
+            *)           echo "'$1' cannot be extracted" ;;
+        esac
+    fi
+}
+
+gclone() {
+    git clone "$1" && cd "$(basename "$1" .git)"
+}
+
+weather() {
+    curl -s "wttr.in/${1:-}?format=3"
+}
+
+myip() {
+    echo "Public IP: $(curl -s ifconfig.me)"
+}
+
+# Load bash completion
+if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+    . /etc/bash_completion
+fi
+
+# Load local customizations
+[ -f ~/.bashrc.local ] && source ~/.bashrc.local
+
+echo "✨ Karetech Bash Environment Ready!"
+echo "   User: {{ .name }}"
+echo "   Profile: {{ .profile }}"
