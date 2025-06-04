@@ -1,0 +1,38 @@
+{{- $email := promptString "Email address" -}}
+{{- $name := promptString "Full name" -}}
+{{- $hostname := .chezmoi.hostname -}}
+{{- $profile := "personal" -}}
+
+{{- if or (contains "work" $hostname) (contains "corp" $hostname) -}}
+{{-   $profile = "work" -}}
+{{- else if contains "dev" $hostname -}}
+{{-   $profile = "development" -}}
+{{- end -}}
+
+[data]
+    email = {{ $email | quote }}
+    name = {{ $name | quote }}
+    hostname = {{ $hostname | quote }}
+    profile = {{ $profile | quote }}
+    
+    # Platform detection
+    {{- if eq .chezmoi.os "windows" }}
+    isWindows = true
+    isLinux = false
+    isMacOS = false
+    {{- else if eq .chezmoi.os "darwin" }}
+    isWindows = false
+    isLinux = false
+    isMacOS = true
+    {{- else }}
+    isWindows = false
+    isLinux = true
+    isMacOS = false
+    {{- end }}
+
+[edit]
+    command = "nano"
+    
+[encryption]
+    command = "age"
+    suffix = ".age"
