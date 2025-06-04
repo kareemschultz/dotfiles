@@ -1,34 +1,52 @@
-{{- $email := promptString "Email address" -}}
-{{- $name := promptString "Full name" -}}
-{{- $hostname := .chezmoi.hostname -}}
-{{- $profile := "personal" -}}
+{{- $name := promptStringOnce . "name" "Full name" -}}
+{{- $email := promptStringOnce . "email" "Email address" -}}
+{{- $profile := promptStringOnce . "profile" "Profile (work/development/personal)" "personal" -}}
 
-{{- if or (contains "work" $hostname) (contains "corp" $hostname) -}}
-{{-   $profile = "work" -}}
-{{- else if contains "dev" $hostname -}}
-{{-   $profile = "development" -}}
+{{- $osID := .chezmoi.os -}}
+{{- if hasKey .chezmoi.osRelease "id" -}}
+{{-   $osID = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
 
+# Chezmoi configuration
+# This file is used to configure chezmoi for your specific environment
+
 [data]
-    email = {{ $email | quote }}
     name = {{ $name | quote }}
-    hostname = {{ $hostname | quote }}
+    email = {{ $email | quote }}
     profile = {{ $profile | quote }}
     
-    # Platform detection
-    {{- if eq .chezmoi.os "windows" }}
-    isWindows = true
-    isLinux = false
-    isMacOS = false
-    {{- else if eq .chezmoi.os "darwin" }}
-    isWindows = false
-    isLinux = false
-    isMacOS = true
-    {{- else }}
-    isWindows = false
-    isLinux = true
-    isMacOS = false
-    {{- end }}
+    # OS Detection
+    osid = {{ $osID | quote }}
+    
+    # Platform booleans for easy templating
+    [data.os]
+        darwin = {{ eq .chezmoi.os "darwin" }}
+        linux = {{ eq .chezmoi.os "linux" }}
+        windows = {{ eq .chezmoi.os "windows" }}
+        wsl = {{ and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+    
+    # Profile booleans
+    [data.profiles]
+        work = {{ eq $profile "work" }}
+        development = {{ eq $profile "development" }}
+        personal = {{ eq $profile "personal" }}
 
+# Git configuration
+[git]
+    autoCommit = true
+    autoPush = true
+
+# Diff tool (optional)
+[diff]
+    command = "delta"
+    args = ["{{.Destination}}", "{{.Target}}"]
+
+# Editor configuration
 [edit]
-    command = "nano"
+    command = "code"
+    args = ["--wait"]
+
+# Merge tool (optional)
+[merge]
+    command = "git"
+    args = ["mergetool"]
