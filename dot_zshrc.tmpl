@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # Karetech ZSH Configuration
-# Owner: {{ .name }} <{{ .email }}>
-# Profile: {{ .profile }}
+# Owner: {{ .name | default "Karetech User" }} <{{ .email | default "user@example.com" }}>
+# Profile: {{ .profile | default "personal" }}
 
 # ============================================================================
 # OH-MY-ZSH SETUP
@@ -46,8 +46,12 @@ eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh/jandedobbeleer.omp.jso
 # ============================================================================
 
 export EDITOR="nano"
-export VISUAL="code"
+export VISUAL="nano"
 export BROWSER="open"
+
+# Set nano as default for everything - no more vim-style pagers
+export PAGER="cat"
+export MANPAGER="cat"
 
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
@@ -65,8 +69,14 @@ fi
 # MODERN UNIX TOOLS ALIASES
 # ============================================================================
 
-# Enhanced ls with exa
-if command -v exa &> /dev/null; then
+# Enhanced ls with exa/eza
+if command -v eza &> /dev/null; then
+    alias ls='eza --icons --group-directories-first'
+    alias ll='eza -l --icons --group-directories-first --git'
+    alias la='eza -la --icons --group-directories-first --git'
+    alias lt='eza --tree --icons --group-directories-first'
+    alias l='eza --icons'
+elif command -v exa &> /dev/null; then
     alias ls='exa --icons --group-directories-first'
     alias ll='exa -l --icons --group-directories-first --git'
     alias la='exa -la --icons --group-directories-first --git'
@@ -247,14 +257,7 @@ alias search='dnf search'
 # ============================================================================
 
 if command -v fzf &> /dev/null; then
-    export FZF_DEFAULT_OPTS="
-        --height 40% 
-        --layout=reverse 
-        --border 
-        --preview 'bat --color=always --style=header,grid --line-range :300 {} 2>/dev/null || cat {} 2>/dev/null || echo "Directory: {}"'
-        --color=bg+:#3c3836,bg:#32302f,spinner:#fb4934,hl:#928374
-        --color=fg:#ebdbb2,header:#928374,info:#8ec07c,pointer:#fb4934
-        --color=marker:#fb4934,fg+:#ebdbb2,prompt:#fb4934,hl+:#fb4934"
+    export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat --color=always --style=header,grid --line-range :300 {} 2>/dev/null || cat {} 2>/dev/null || echo \"Directory: {}\"' --color=bg+:#3c3836,bg:#32302f,spinner:#fb4934,hl:#928374 --color=fg:#ebdbb2,header:#928374,info:#8ec07c,pointer:#fb4934 --color=marker:#fb4934,fg+:#ebdbb2,prompt:#fb4934,hl+:#fb4934"
     
     if command -v fd &> /dev/null; then
         export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
@@ -371,7 +374,7 @@ newproject() {
     mkcd "$1"
     git init
     echo "# $1" > README.md
-    echo -e "node_modules/\n.env\n.DS_Store\n*.log\n.vscode/\n.idea/" > .gitignore
+    echo -e "node_modules/\\n.env\\n.DS_Store\\n*.log\\n.vscode/\\n.idea/" > .gitignore
     
     echo "✅ Project '$1' created and initialized!"
 }
@@ -475,7 +478,7 @@ alias notes='nano ~/notes.txt'
 
 # Welcome message
 echo "✨ Karetech Environment Ready!"
-echo "   User: {{ .name }}"
+echo "   User: {{ .name | default "Karetech User" }}"
 echo "   Platform: {{ .chezmoi.os }}"
-echo "   Profile: {{ .profile }}"
+echo "   Profile: {{ .profile | default "personal" }}"
 echo "   Time: $(date '+%Y-%m-%d %H:%M:%S')"
