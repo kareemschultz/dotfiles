@@ -69,7 +69,7 @@ if [[ ! -f "$_ANTIDOTE_SOURCE" ]]; then
 fi
 {{- end }}
 [[ -f "$_ANTIDOTE_SOURCE" ]] && source "$_ANTIDOTE_SOURCE"
-antidote load "$HOME/.zsh_plugins.txt"
+GIT_CONFIG_GLOBAL=/dev/null antidote load "$HOME/.zsh_plugins.txt"
 
 # ── mise (version manager: Node, Python, Bun, Ruby, etc.) ────────────────────
 if command -v mise &>/dev/null; then
