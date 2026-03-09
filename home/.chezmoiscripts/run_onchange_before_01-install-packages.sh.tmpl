@@ -1,0 +1,146 @@
+{{- /* run_onchange_ = re-runs whenever packages.yaml content changes */ -}}
+{{- /* Checksum of package list is embedded so adding a package triggers re-run */ -}}
+{{- /* packages.yaml hash: {{ include (joinPath .chezmoi.sourceDir "../.chezmoidata/packages.yaml") | sha256sum }} */ -}}
+#!/bin/bash
+set -euo pipefail
+
+{{- if eq .chezmoi.os "darwin" }}
+
+# ── macOS: Install via Homebrew Bundle ───────────────────────────────────────
+echo "==> Installing macOS packages via Homebrew..."
+
+# Ensure brew is in PATH (Apple Silicon)
+eval "$(/opt/homebrew/bin/brew shellenv)" 2>/dev/null || true
+
+brew bundle --no-lock --file=/dev/stdin <<'BREWFILE'
+tap "homebrew/bundle"
+
+# Shell stack
+brew "zsh"
+brew "antidote"
+brew "starship"
+brew "atuin"
+
+# Multiplexer
+brew "tmux"
+
+# Editor
+brew "neovim"
+
+# Git
+brew "git"
+brew "delta"
+brew "lazygit"
+brew "gh"
+
+# Modern CLI
+brew "ripgrep"
+brew "fd"
+brew "bat"
+brew "eza"
+brew "zoxide"
+brew "fzf"
+brew "dust"
+brew "btop"
+brew "tldr"
+
+# File manager + session tools
+brew "yazi"
+brew "sesh"
+brew "gum"
+
+# System info + version manager
+brew "fastfetch"
+brew "mise"
+
+# Terminals + fonts
+cask "ghostty"
+cask "font-jetbrains-mono-nerd-font"
+BREWFILE
+
+echo "==> macOS packages installed."
+
+{{- else if eq .chezmoi.os "linux" }}
+
+# ── Linux: apt + official install scripts ────────────────────────────────────
+echo "==> Installing Linux packages..."
+
+# apt packages (available in standard repos)
+sudo apt-get update -qq
+sudo apt-get install -y \
+    git \
+    zsh \
+    tmux \
+    curl \
+    unzip \
+    build-essential \
+    ripgrep \
+    fd-find \
+    fzf \
+    btop \
+    tldr
+
+# ── Neovim (appimage, apt version is too old) ─────────────────────────────────
+if ! command -v nvim &>/dev/null; then
+    echo "==> Installing Neovim..."
+    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+    chmod u+x nvim-linux-x86_64.appimage
+    sudo mv nvim-linux-x86_64.appimage /usr/local/bin/nvim
+fi
+
+# ── Starship ──────────────────────────────────────────────────────────────────
+command -v starship &>/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- -y
+
+# ── Atuin ─────────────────────────────────────────────────────────────────────
+command -v atuin &>/dev/null || curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+
+# ── zoxide ────────────────────────────────────────────────────────────────────
+command -v zoxide &>/dev/null || curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+
+# ── eza ───────────────────────────────────────────────────────────────────────
+if ! command -v eza &>/dev/null; then
+    sudo apt-get install -y gpg
+    sudo mkdir -p /etc/apt/keyrings
+    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+    sudo apt-get update -qq && sudo apt-get install -y eza
+fi
+
+# ── delta ─────────────────────────────────────────────────────────────────────
+if ! command -v delta &>/dev/null; then
+    DELTA_VERSION=$(curl -s "https://api.github.com/repos/dandavison/delta/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+    curl -LO "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/git-delta_${DELTA_VERSION}_amd64.deb"
+    sudo dpkg -i "git-delta_${DELTA_VERSION}_amd64.deb"
+    rm "git-delta_${DELTA_VERSION}_amd64.deb"
+fi
+
+# ── lazygit ───────────────────────────────────────────────────────────────────
+if ! command -v lazygit &>/dev/null; then
+    LG_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LG_VERSION}/lazygit_${LG_VERSION}_Linux_x86_64.tar.gz"
+    tar xf lazygit.tar.gz lazygit
+    sudo install lazygit /usr/local/bin
+    rm lazygit.tar.gz lazygit
+fi
+
+# ── fastfetch ─────────────────────────────────────────────────────────────────
+if ! command -v fastfetch &>/dev/null; then
+    FF_VERSION=$(curl -s "https://api.github.com/repos/fastfetch-cli/fastfetch/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+    curl -LO "https://github.com/fastfetch-cli/fastfetch/releases/download/${FF_VERSION}/fastfetch-linux-amd64.deb"
+    sudo dpkg -i "fastfetch-linux-amd64.deb"
+    rm "fastfetch-linux-amd64.deb"
+fi
+
+# ── mise (version manager) ────────────────────────────────────────────────────
+command -v mise &>/dev/null || curl https://mise.run | sh
+
+# ── GitHub CLI (official apt repo) ───────────────────────────────────────────
+if ! command -v gh &>/dev/null; then
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list
+    sudo apt-get update -qq && sudo apt-get install -y gh
+fi
+
+echo "==> Linux packages installed."
+
+{{- end }}

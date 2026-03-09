@@ -1,0 +1,11 @@
+{
+  "accentColor": "#cba6f7",
+  "theme": "Catppuccin",
+  "cssTheme": "Catppuccin",
+  "interfaceFontFamily": "",
+  "textFontFamily": "",
+  "monospaceFontFamily": "JetBrainsMono Nerd Font",
+  "baseFontSize": 16,
+  "enabledCssSnippets": ["catppuccin-mocha-extras"],
+  "translucency": false
+}

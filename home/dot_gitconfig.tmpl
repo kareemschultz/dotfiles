@@ -1,0 +1,72 @@
+# vim: set filetype=gitconfig:
+# ── ~/.gitconfig ──────────────────────────────────────────────────────────────
+# Managed by chezmoi — edit with: chezmoi edit --apply ~/.gitconfig
+
+[user]
+    name  = {{ .name }}
+    email = {{ .email }}
+
+[core]
+    editor       = nvim
+    pager        = delta
+    excludesfile = ~/.gitignore_global
+    autocrlf     = input   # LF on commit; leave alone on checkout (Linux/macOS)
+    whitespace   = fix     # Fix trailing whitespace on commit
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true          # Always rebase on pull (cleaner history)
+
+[push]
+    autoSetupRemote = true # git push sets upstream automatically
+
+[rebase]
+    autoStash = true       # Stash before rebase, unstash after
+
+[merge]
+    conflictstyle = diff3  # Show base + ours + theirs in conflict markers
+
+[diff]
+    colorMoved    = default
+    algorithm     = histogram  # Better diff algorithm
+
+# ── delta (pager + diff viewer) ───────────────────────────────────────────────
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate         = true          # n/N to jump between diff sections
+    side-by-side     = true
+    line-numbers     = true
+    syntax-theme     = Catppuccin-mocha
+    file-style       = bold yellow
+    hunk-header-style = file line-number
+
+# ── URL rewrites ──────────────────────────────────────────────────────────────
+[url "git@github.com:"]
+    insteadOf = https://github.com/
+
+# ── Aliases ───────────────────────────────────────────────────────────────────
+[alias]
+    lg      = log --oneline --graph --decorate --all
+    ll      = log --oneline -20
+    st      = status -sb
+    undo    = reset --soft HEAD~1
+    unstage = restore --staged
+    wip     = commit -am "wip: checkpoint"
+    aliases = config --get-regexp alias
+    # Show last commit
+    last    = log -1 HEAD --stat
+    # List contributors
+    who     = shortlog -sn --no-merges
+
+# ── Profile-specific overrides ────────────────────────────────────────────────
+{{- if eq .profile "work" }}
+[includeIf "gitdir:~/work/"]
+    path = ~/.gitconfig.work
+# Create ~/.gitconfig.work on this machine with:
+# [user]
+#     email = kareem.nasser@ndma.gov.gy
+{{- end }}

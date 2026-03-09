@@ -1,0 +1,43 @@
+{{/* ─────────────────────────────────────────────────────────────────────────
+     chezmoi machine config template
+     Runs ONCE on `chezmoi init`. Writes ~/.config/chezmoi/chezmoi.toml
+     That file is NEVER committed — it holds per-machine private data.
+
+     Test with:
+       chezmoi execute-template --init \
+         --promptString "name=Kareem Schultz" \
+         --promptString "email=kareemschultzz46@gmail.com" \
+         --promptChoice "profile=personal" \
+         --promptString "obsidian_vault=$HOME/notes" \
+         < ~/.local/share/chezmoi/home/.chezmoi.toml.tmpl
+     ───────────────────────────────────────────────────────────────────────── */}}
+
+{{- $name           := promptStringOnce . "name"           "Full name" -}}
+{{- $email          := promptStringOnce . "email"          "Git email address" -}}
+{{- $profile        := promptChoiceOnce . "profile"        "Machine profile" (list "personal" "work" "server") -}}
+{{- $obsidian_vault := promptStringOnce . "obsidian_vault" "Obsidian vault path (leave blank for ~/notes)" -}}
+{{- if not $obsidian_vault -}}{{- $obsidian_vault = "~/notes" -}}{{- end -}}
+
+[data]
+    name           = {{ $name           | quote }}
+    email          = {{ $email          | quote }}
+    profile        = {{ $profile        | quote }}
+    obsidian_vault = {{ $obsidian_vault | quote }}
+
+[edit]
+    command = "nvim"
+
+[merge]
+    command = "nvim"
+    args    = ["-d", "{{ "{{" }} .Destination {{ "}}" }}", "{{ "{{" }} .Source {{ "}}" }}", "{{ "{{" }} .Target {{ "}}" }}"]
+
+[diff]
+    pager   = "delta"
+    exclude = ["scripts"]
+
+[git]
+    autoCommit = true
+    autoPush   = false
+
+[status]
+    exclude = ["scripts"]

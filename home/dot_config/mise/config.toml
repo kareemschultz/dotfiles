@@ -1,0 +1,16 @@
+# ── mise config ───────────────────────────────────────────────────────────────
+# Managed by chezmoi — edit with: chezmoi edit --apply ~/.config/mise/config.toml
+# mise manages: Node, Bun, Python, Go, Rust (per-project via .tool-versions)
+# Global defaults installed on every machine
+
+[tools]
+node   = "lts"
+bun    = "latest"
+python = "3.12"
+go     = "latest"
+
+[settings]
+experimental    = true
+jobs            = 4              # parallel installs
+always_keep_download = false
+plugin_autoupdate_last_check_duration = "1 week"

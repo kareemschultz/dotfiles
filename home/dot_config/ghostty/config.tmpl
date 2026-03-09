@@ -1,0 +1,70 @@
+# ── Ghostty terminal config ───────────────────────────────────────────────────
+# Managed by chezmoi — edit with: chezmoi edit --apply ~/.config/ghostty/config
+# This file is only deployed on macOS and Linux (.chezmoiignore excludes Windows)
+
+# ── Font ──────────────────────────────────────────────────────────────────────
+font-family      = "JetBrainsMono Nerd Font"
+font-size        = 14
+font-feature     = +liga     # Enable ligatures
+font-feature     = +calt     # Contextual alternates
+font-thicken     = true      # Slightly bolder on HiDPI (macOS only)
+
+# ── Catppuccin Mocha palette ──────────────────────────────────────────────────
+background              = #1e1e2e
+foreground              = #cdd6f4
+cursor-color            = #f5e0dc
+selection-background    = #585b70
+selection-foreground    = #cdd6f4
+
+# ANSI 0-15
+palette = 0=#45475a
+palette = 1=#f38ba8
+palette = 2=#a6e3a1
+palette = 3=#f9e2af
+palette = 4=#89b4fa
+palette = 5=#f5c2e7
+palette = 6=#94e2d5
+palette = 7=#bac2de
+palette = 8=#585b70
+palette = 9=#f38ba8
+palette = 10=#a6e3a1
+palette = 11=#f9e2af
+palette = 12=#89b4fa
+palette = 13=#f5c2e7
+palette = 14=#94e2d5
+palette = 15=#a6adc8
+
+# ── Window ────────────────────────────────────────────────────────────────────
+window-padding-x             = 12
+window-padding-y             = 10
+window-padding-balance       = true
+window-title-font-family     = inherit
+
+{{- if eq .chezmoi.os "darwin" }}
+# macOS window chrome
+macos-titlebar-style         = hidden
+macos-option-as-alt          = true     # Option = Alt for terminal keybinds
+window-decoration            = true
+{{- end }}
+
+# ── Cursor ────────────────────────────────────────────────────────────────────
+cursor-style                 = bar
+cursor-style-blink           = true
+cursor-blink-interval        = 500
+mouse-hide-while-typing      = true
+
+# ── Shell integration ─────────────────────────────────────────────────────────
+shell-integration            = zsh
+shell-integration-features   = cursor,sudo,title
+
+# ── Scrollback ────────────────────────────────────────────────────────────────
+scrollback-limit             = 10000
+
+# ── Keybinds ──────────────────────────────────────────────────────────────────
+# New tab/window
+keybind = ctrl+shift+t=new_tab
+keybind = ctrl+shift+n=new_window
+
+# Split pane
+keybind = ctrl+shift+d=new_split:right
+keybind = ctrl+shift+e=new_split:down

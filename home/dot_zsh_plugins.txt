@@ -1,0 +1,17 @@
+# ── ~/.zsh_plugins.txt ────────────────────────────────────────────────────────
+# Managed by antidote. Plugins are loaded in order.
+# After changing this file, restart your shell or run: antidote load
+
+# ── Completions (load first so other plugins can use them) ────────────────────
+zsh-users/zsh-completions kind:fpath path:src
+
+# ── fzf-tab (replace default tab completions with fzf popup) ─────────────────
+# Must come AFTER compinit but BEFORE syntax-highlighting
+Aloxaf/fzf-tab
+
+# ── Autosuggestions (grey ghost text from history as you type) ────────────────
+zsh-users/zsh-autosuggestions
+
+# ── Syntax highlighting (green = valid, red = not found) ─────────────────────
+# Must be last (or near last) in the list
+zsh-users/zsh-syntax-highlighting

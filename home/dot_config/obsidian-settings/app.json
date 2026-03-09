@@ -1,0 +1,20 @@
+{
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "inbox",
+  "attachmentFolderPath": "assets",
+  "useMarkdownLinks": false,
+  "strictLineBreaks": false,
+  "showFrontmatter": false,
+  "defaultViewMode": "source",
+  "livePreview": true,
+  "readableLineLength": true,
+  "showLineNumber": true,
+  "foldHeading": true,
+  "foldIndent": true,
+  "spellcheck": true,
+  "spellcheckLanguages": ["en"],
+  "vimMode": false,
+  "promptDelete": false,
+  "trashOption": "local"
+}

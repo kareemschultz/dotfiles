@@ -1,0 +1,28 @@
+# ── lazygit config ────────────────────────────────────────────────────────────
+# Managed by chezmoi — edit with: chezmoi edit --apply ~/.config/lazygit/config.yml
+gui:
+  theme:
+    activeBorderColor:    ["#cba6f7", "bold"]
+    inactiveBorderColor:  ["#45475a"]
+    optionsTextColor:     ["#89b4fa"]
+    selectedLineBgColor:  ["#313244"]
+    selectedRangeBgColor: ["#313244"]
+    unstagedChangesColor: ["#f38ba8"]
+    defaultFgColor:       ["#cdd6f4"]
+  sidePanelWidth:         0.2
+  expandFocusedSidePanel: true
+  mouseEvents:            true
+  showFileTree:           true
+  showRandomTip:          false
+  showCommandLog:         false
+  nerdFontsVersion:       "3"
+git:
+  paging:
+    colorArg: always
+    pager:    "delta --dark --paging=never"
+  autoFetch:  true
+  autoRefresh: true
+  pull:
+    mode:   "rebase"
+os:
+  editPreset: "nvim"

@@ -1,0 +1,40 @@
+# ── ~/.ssh/config ─────────────────────────────────────────────────────────────
+# Managed by chezmoi — edit with: chezmoi edit --apply ~/.ssh/config
+# private_dot_ssh = chezmoi sets permissions 0700 on .ssh/
+# This file is excluded on server profile (see .chezmoiignore)
+
+# ── Global defaults ───────────────────────────────────────────────────────────
+Host *
+    ServerAliveInterval     60
+    ServerAliveCountMax     3
+    AddKeysToAgent          yes
+    IdentityFile            ~/.ssh/id_ed25519
+    {{- if eq .chezmoi.os "darwin" }}
+    UseKeychain             yes    # macOS Keychain integration
+    {{- end }}
+    # Reuse connections (faster successive SSH to same host)
+    ControlMaster           auto
+    ControlPath             ~/.ssh/controlmasters/%r@%h:%p
+    ControlPersist          10m
+
+# ── NDMA infrastructure ───────────────────────────────────────────────────────
+{{- if ne .profile "server" }}
+
+# Jump through bastion to reach internal VMs
+# Host ndma-*
+#     User                kareem
+#     ProxyJump           bastion.ndma.gov.gy
+#     IdentityFile        ~/.ssh/id_ed25519_ndma
+
+# Bastion host
+# Host bastion.ndma.gov.gy
+#     User                kareem
+#     IdentityFile        ~/.ssh/id_ed25519_ndma
+#     ForwardAgent        yes
+{{- end }}
+
+# ── GitHub ────────────────────────────────────────────────────────────────────
+Host github.com
+    User                git
+    IdentityFile        ~/.ssh/id_ed25519
+    AddKeysToAgent      yes

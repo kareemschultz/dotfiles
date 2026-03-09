@@ -1,0 +1,21 @@
+{{- /* Linux only — macOS gets the font via Homebrew cask */ -}}
+{{- if eq .chezmoi.os "linux" -}}
+#!/bin/bash
+set -euo pipefail
+
+FONT_DIR="$HOME/.local/share/fonts"
+mkdir -p "$FONT_DIR"
+
+if ! fc-list | grep -qi "JetBrainsMono"; then
+    echo "==> Installing JetBrains Mono Nerd Font..."
+    TMPDIR_FONTS=$(mktemp -d)
+    curl -Lo "${TMPDIR_FONTS}/JetBrainsMono.tar.xz" \
+        "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
+    tar -xf "${TMPDIR_FONTS}/JetBrainsMono.tar.xz" -C "$FONT_DIR"
+    rm -rf "$TMPDIR_FONTS"
+    fc-cache -fv
+    echo "==> JetBrains Mono Nerd Font installed."
+else
+    echo "==> JetBrains Mono Nerd Font already installed, skipping."
+fi
+{{- end }}

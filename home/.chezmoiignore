@@ -1,0 +1,31 @@
+# ── Never expose local machine config ────────────────────────────────────────
+.chezmoi.toml
+
+# ── Keep repo meta-files out of $HOME ────────────────────────────────────────
+../README.md
+../.gitignore
+
+# ── Terminal: Ghostty is macOS + Linux only ───────────────────────────────────
+{{- if eq .chezmoi.os "windows" }}
+.config/ghostty
+{{- end }}
+
+# ── Terminal: WezTerm only needed on Windows ──────────────────────────────────
+{{- if ne .chezmoi.os "windows" }}
+.config/wezterm
+{{- end }}
+
+# ── PowerShell profile: Windows only ─────────────────────────────────────────
+{{- if ne .chezmoi.os "windows" }}
+.config/powershell
+{{- end }}
+
+# ── SSH config: server profile manages SSH via Ansible ────────────────────────
+{{- if eq .profile "server" }}
+.ssh
+{{- end }}
+
+# ── Obsidian: only on personal/work profiles (not bare servers) ───────────────
+{{- if eq .profile "server" }}
+.config/obsidian-settings
+{{- end }}

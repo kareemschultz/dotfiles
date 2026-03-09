@@ -1,0 +1,225 @@
+# vim: set filetype=zsh:
+# ── ~/.zshrc ──────────────────────────────────────────────────────────────────
+# Managed by chezmoi — edit with: chezmoi edit --apply ~/.zshrc
+# Machine: {{ .chezmoi.hostname }} | Profile: {{ .profile }} | OS: {{ .chezmoi.os }}
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Profiling (uncomment to debug slow startup) ───────────────────────────────
+# zmodload zsh/zprof
+
+# ── XDG Base Directories ──────────────────────────────────────────────────────
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_STATE_HOME="$HOME/.local/state"
+
+# ── PATH ──────────────────────────────────────────────────────────────────────
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"     # Rust tools (eza, yazi, zoxide on Linux)
+export PATH="$HOME/go/bin:$PATH"         # Go tools (sesh)
+
+{{- if eq .chezmoi.os "darwin" }}
+# macOS: Homebrew (Apple Silicon path)
+if [[ -f /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -f /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{- end }}
+
+# ── History ───────────────────────────────────────────────────────────────────
+# Note: atuin replaces Ctrl+R — these settings still govern $HISTFILE fallback
+HISTFILE="$XDG_STATE_HOME/zsh/history"
+HISTSIZE=10000000
+SAVEHIST=10000000
+[[ -d "$XDG_STATE_HOME/zsh" ]] || mkdir -p "$XDG_STATE_HOME/zsh"
+setopt EXTENDED_HISTORY
+setopt INC_APPEND_HISTORY_TIME
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS
+
+# ── Zsh options ───────────────────────────────────────────────────────────────
+setopt AUTO_CD              # Type a directory name to cd into it
+setopt CORRECT              # Suggest corrections for commands
+setopt NO_BEEP              # Silence
+setopt INTERACTIVE_COMMENTS # Allow # comments in interactive shell
+
+# ── Completion system ─────────────────────────────────────────────────────────
+autoload -Uz compinit
+# Only rebuild compinit once a day for speed
+if [[ -n "$XDG_CACHE_HOME/zsh/zcompdump"(#qN.mh+24) ]]; then
+    compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
+else
+    compinit -C -d "$XDG_CACHE_HOME/zsh/zcompdump"
+fi
+[[ -d "$XDG_CACHE_HOME/zsh" ]] || mkdir -p "$XDG_CACHE_HOME/zsh"
+
+# ── Antidote (plugin manager) ─────────────────────────────────────────────────
+# Antidote generates a static plugin file for fast startup.
+# Plugins declared in ~/.zsh_plugins.txt
+ANTIDOTE_HOME="$XDG_DATA_HOME/antidote"
+{{- if eq .chezmoi.os "darwin" }}
+_ANTIDOTE_SOURCE="${HOMEBREW_PREFIX}/share/antidote/antidote.zsh"
+{{- else }}
+_ANTIDOTE_SOURCE="$HOME/.antidote/antidote.zsh"
+# Install antidote if missing (Linux)
+if [[ ! -f "$_ANTIDOTE_SOURCE" ]]; then
+    git clone --depth=1 https://github.com/mattmc3/antidote.git "$HOME/.antidote"
+fi
+{{- end }}
+[[ -f "$_ANTIDOTE_SOURCE" ]] && source "$_ANTIDOTE_SOURCE"
+antidote load "$HOME/.zsh_plugins.txt"
+
+# ── mise (version manager: Node, Python, Bun, Ruby, etc.) ────────────────────
+if command -v mise &>/dev/null; then
+    eval "$(mise activate zsh)"
+fi
+
+# ── Starship prompt ───────────────────────────────────────────────────────────
+if command -v starship &>/dev/null; then
+    eval "$(starship init zsh)"
+fi
+
+# ── zoxide (smart cd) ─────────────────────────────────────────────────────────
+if command -v zoxide &>/dev/null; then
+    eval "$(zoxide init zsh)"
+fi
+
+# ── Atuin (encrypted shell history sync) ─────────────────────────────────────
+# Replaces Ctrl+R. fzf is kept for file/dir/process searching.
+if command -v atuin &>/dev/null; then
+    eval "$(atuin init zsh)"
+fi
+
+# ── fzf (fuzzy finder — files, dirs, processes) ───────────────────────────────
+if command -v fzf &>/dev/null; then
+    # Source fzf keybindings (Ctrl+T file, Alt+C dir) — NOT history (atuin owns that)
+    {{- if eq .chezmoi.os "darwin" }}
+    [[ -f "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh" ]] && \
+        source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh"
+    [[ -f "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh" ]] && \
+        source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh"
+    {{- else }}
+    [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]] && \
+        source /usr/share/doc/fzf/examples/key-bindings.zsh
+    {{- end }}
+    # Catppuccin Mocha colours for fzf
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_DEFAULT_OPTS=" \
+        --height 40% --layout=reverse --border --info=inline \
+        --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
+        --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+        --color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
+        --bind 'ctrl-/:toggle-preview'"
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+fi
+
+# ── bat (cat replacement) ─────────────────────────────────────────────────────
+if command -v bat &>/dev/null; then
+    export BAT_THEME="Catppuccin-mocha"
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
+
+# ── Editor ────────────────────────────────────────────────────────────────────
+export EDITOR='nvim'
+export VISUAL='nvim'
+
+# ── ── ── ── ── ── ── ── ── ALIASES ── ── ── ── ── ── ── ── ── ── ── ── ── ──
+
+# ── Modern CLI replacements ───────────────────────────────────────────────────
+alias ls='eza --icons --group-directories-first'
+alias ll='eza --icons --group-directories-first -la --git'
+alias la='eza --icons --group-directories-first -a'
+alias lt='eza --icons --tree --level=2'
+alias lt3='eza --icons --tree --level=3'
+alias cat='bat --paging=never'
+alias less='bat'
+alias grep='rg'
+alias find='fd'
+alias top='btop'
+alias df='dust'
+alias du='dust'
+alias cd='z'          # zoxide smart jump
+alias cdi='zi'        # zoxide interactive
+
+# ── Editor ────────────────────────────────────────────────────────────────────
+alias v='nvim'
+alias vi='nvim'
+alias vim='nvim'
+
+# ── Git ───────────────────────────────────────────────────────────────────────
+alias g='git'
+alias gs='git status -sb'
+alias gd='git diff'
+alias ga='git add'
+alias gaa='git add -A'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gp='git push'
+alias gpl='git pull'
+alias glog='git log --oneline --graph --decorate --all'
+alias gundo='git reset --soft HEAD~1'
+alias gwip='git commit -am "wip: $(date +%Y-%m-%d)"'
+alias lg='lazygit'
+
+# ── tmux ──────────────────────────────────────────────────────────────────────
+alias t='tmux'
+alias ta='tmux attach -t'
+alias tn='tmux new -s'
+alias tl='tmux ls'
+alias tk='tmux kill-session -t'
+
+# ── chezmoi ───────────────────────────────────────────────────────────────────
+alias cz='chezmoi'
+alias czd='chezmoi diff'
+alias cza='chezmoi apply'
+alias cze='chezmoi edit --apply'
+alias czcd='chezmoi cd'
+alias czu='chezmoi update'
+alias czs='chezmoi status'
+
+# ── Navigation ────────────────────────────────────────────────────────────────
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ~='cd ~'
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+alias reload='source ~/.zshrc'
+alias path='echo $PATH | tr ":" "\n"'
+alias ports='ss -tulpn'
+alias myip='curl -s https://ipinfo.io/ip'
+alias cls='clear'
+alias mk='mkdir -p'
+alias rmf='rm -rf'
+
+{{- if eq .chezmoi.os "darwin" }}
+# ── macOS-specific ────────────────────────────────────────────────────────────
+alias brewup='brew update && brew upgrade && brew cleanup'
+alias showfiles='defaults write com.apple.finder AppleShowAllFiles YES && killall Finder'
+alias hidefiles='defaults write com.apple.finder AppleShowAllFiles NO && killall Finder'
+alias flushdns='sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder'
+{{- else if eq .chezmoi.os "linux" }}
+# ── Linux-specific ────────────────────────────────────────────────────────────
+alias open='xdg-open'
+alias pbcopy='xclip -selection clipboard'
+alias pbpaste='xclip -selection clipboard -o'
+alias aptup='sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y'
+{{- end }}
+
+# ── Profile-specific ──────────────────────────────────────────────────────────
+{{- if eq .profile "work" }}
+# Work profile: NDMA-specific paths and aliases
+alias ndma-vpn='sudo openvpn --config ~/.config/vpn/ndma.ovpn'
+export WORK_DOMAIN="ndma.gov.gy"
+{{- end }}
+
+# ── Shell greeting (fastfetch) ────────────────────────────────────────────────
+# Only show in interactive non-tmux sessions (avoid greeting inside every pane)
+if [[ -o interactive ]] && [[ -z "$TMUX" ]] && command -v fastfetch &>/dev/null; then
+    fastfetch
+fi
+
+# zprof  # uncomment to see startup time breakdown

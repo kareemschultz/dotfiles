@@ -1,0 +1,21 @@
+# ── sesh config ───────────────────────────────────────────────────────────────
+# Managed by chezmoi — edit with: chezmoi edit --apply ~/.config/sesh/sesh.toml
+# sesh = smart tmux session manager (fuzzy-pick sessions + zoxide dirs + git repos)
+# Bound to: Ctrl+A Ctrl+J in tmux.conf
+# Docs: https://github.com/joshmedeski/sesh
+
+[[session]]
+name = "dotfiles"
+path = "~/.local/share/chezmoi"
+startup_command = "nvim"
+
+[[session]]
+name = "ndma-ops"
+path = "~/work/ndma"
+
+[[session]]
+name = "karetech"
+path = "~/work/karetech"
+
+[default_session]
+startup_command = "nvim ."

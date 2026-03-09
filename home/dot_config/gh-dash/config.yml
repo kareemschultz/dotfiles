@@ -1,0 +1,30 @@
+# ── gh-dash config ────────────────────────────────────────────────────────────
+# Managed by chezmoi — edit with: chezmoi edit --apply ~/.config/gh-dash/config.yml
+# gh-dash: GitHub dashboard in the terminal (gh extension)
+# Install: gh extension install dlvhdr/gh-dash
+prSections:
+  - title: "My PRs"
+    filters: "is:open author:@me"
+  - title: "Needs Review"
+    filters: "is:open review-requested:@me"
+  - title: "Reviewed"
+    filters: "is:open reviewed-by:@me -author:@me"
+
+issuesSections:
+  - title: "My Issues"
+    filters: "is:open author:@me"
+  - title: "Assigned"
+    filters: "is:open assignee:@me"
+
+defaults:
+  prsLimit:    20
+  issuesLimit: 20
+  preview:
+    open: true
+    width: 60
+
+theme:
+  ui:
+    sectionsShowCount: true
+    table:
+      showSeparator: true

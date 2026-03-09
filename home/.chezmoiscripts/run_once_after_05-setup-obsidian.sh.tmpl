@@ -1,0 +1,59 @@
+{{- if ne .profile "server" -}}
+#!/bin/bash
+set -euo pipefail
+
+# ── Deploy Obsidian settings to vault ────────────────────────────────────────
+# chezmoi manages a "settings template" in ~/.config/obsidian-settings/
+# This script copies them into the actual vault's .obsidian folder.
+#
+# Set OBSIDIAN_VAULT to your vault path. Default: ~/notes
+# Override by setting it in ~/.config/chezmoi/chezmoi.toml:
+#   [data]
+#   obsidian_vault = "/path/to/your/vault"
+
+VAULT="{{ if .obsidian_vault }}{{ .obsidian_vault }}{{ else }}$HOME/notes{{ end }}"
+SETTINGS_SRC="$HOME/.config/obsidian-settings"
+OBSIDIAN_DIR="$VAULT/.obsidian"
+
+if [ ! -d "$VAULT" ]; then
+    echo "==> Obsidian vault not found at $VAULT — creating it..."
+    mkdir -p "$VAULT"
+fi
+
+mkdir -p "$OBSIDIAN_DIR/plugins" "$OBSIDIAN_DIR/snippets" "$OBSIDIAN_DIR/themes"
+
+echo "==> Deploying Obsidian settings to $OBSIDIAN_DIR..."
+
+# Copy config files (only if they don't already exist — don't overwrite user changes)
+for f in app.json appearance.json community-plugins.json core-plugins.json hotkeys.json; do
+    if [ ! -f "$OBSIDIAN_DIR/$f" ]; then
+        cp "$SETTINGS_SRC/$f" "$OBSIDIAN_DIR/$f"
+        echo "    ✓ $f"
+    else
+        echo "    ~ $f (already exists, skipping)"
+    fi
+done
+
+# Initialize vault as a git repo if not already
+if [ ! -d "$VAULT/.git" ]; then
+    echo "==> Initialising Obsidian vault as git repo..."
+    cd "$VAULT"
+    git init
+    cat > "$VAULT/.gitignore" << 'GITIGNORE'
+# Ignore Obsidian system files but track settings
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.obsidian/plugins/
+.obsidian/themes/
+.trash/
+.DS_Store
+GITIGNORE
+    git add .
+    git commit -m "chore: initialise vault" 2>/dev/null || true
+    echo "==> Vault git repo ready. Push to GitHub manually:"
+    echo "    cd $VAULT && git remote add origin git@github.com:YOU/notes.git && git push -u origin main"
+fi
+
+echo "==> Obsidian setup complete."
+{{- end }}

@@ -1,0 +1,91 @@
+# ── Declarative package lists ─────────────────────────────────────────────────
+# Consumed by run_onchange_ install scripts.
+# Add a package here, run `chezmoi apply` — it gets installed.
+
+darwin:
+  brews:
+    # Core shell stack
+    - zsh
+    - antidote
+    - starship
+    - atuin
+    # Multiplexer
+    - tmux
+    # Editor
+    - neovim
+    # Git
+    - git
+    - delta
+    - lazygit
+    - gh
+    # Modern CLI replacements
+    - ripgrep
+    - fd
+    - bat
+    - eza
+    - zoxide
+    - fzf
+    - dust
+    - btop
+    - tldr
+    # File manager + session tools
+    - yazi
+    - sesh
+    - gum                  # required by sesh fzf popup
+    # System info
+    - fastfetch
+    # Version manager
+    - mise
+    # Fonts (via cask)
+  casks:
+    - ghostty
+    - font-jetbrains-mono-nerd-font
+
+linux:
+  apt:
+    # These are available in standard apt repos
+    - git
+    - zsh
+    - tmux
+    - curl
+    - unzip
+    - build-essential
+    - ripgrep
+    - fd-find
+    - fzf
+    - btop
+    - tldr
+  # Installed via official install scripts (not in apt or outdated in apt):
+  # starship   → curl -sS https://starship.rs/install.sh | sh -s -- -y
+  # atuin      → curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+  # neovim     → appimage or snap (apt version is too old)
+  # eza        → cargo install eza  OR  apt on Ubuntu 23.10+
+  # zoxide     → curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+  # delta      → download .deb from GitHub releases
+  # lazygit    → download tarball from GitHub releases
+  # fastfetch  → download .deb from GitHub releases
+  # mise       → curl https://mise.run | sh
+  # yazi       → cargo install yazi-fm yazi-cli
+  # sesh       → go install github.com/joshmedeski/sesh@latest
+  # gh         → apt via GitHub's own apt repo
+
+windows:
+  scoop:
+    # Install scoop first: irm get.scoop.sh | iex
+    # Then: scoop bucket add nerd-fonts extras
+    - git
+    - neovim
+    - starship
+    - fzf
+    - ripgrep
+    - fd
+    - bat
+    - eza
+    - zoxide
+    - delta
+    - lazygit
+    - btop
+    - gh
+    - gum
+    - fastfetch
+    - JetBrainsMono-NF    # from nerd-fonts bucket

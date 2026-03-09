@@ -1,0 +1,44 @@
+# ── Atuin config ──────────────────────────────────────────────────────────────
+# Managed by chezmoi — edit with: chezmoi edit --apply ~/.config/atuin/config.toml
+# Atuin replaces Ctrl+R with an encrypted, synced shell history database.
+# Docs: https://docs.atuin.sh/configuration/config/
+
+# ── Behaviour ─────────────────────────────────────────────────────────────────
+search_mode  = "fuzzy"            # Fuzzy search (vs prefix/fulltext)
+filter_mode  = "global"           # Default: search all machines
+# Pressing Up Arrow searches current directory history first
+filter_mode_shell_up_key_binding = "directory"
+
+# ── UI ────────────────────────────────────────────────────────────────────────
+style        = "compact"          # compact | full | auto
+show_preview = true               # Show command preview below list
+show_help    = true
+exit_mode    = "return-query"     # On Esc, return to shell with query still typed
+
+# ── Enter behaviour ───────────────────────────────────────────────────────────
+# false = Enter puts command on prompt for editing (safer, recommended)
+# true  = Enter executes immediately
+enter_accept = false
+
+# ── Keymap ────────────────────────────────────────────────────────────────────
+keymap_mode  = "auto"             # auto | vim-insert | vim-normal | emacs
+
+# ── History deduplication ─────────────────────────────────────────────────────
+history_filter = [
+    "^ls",                        # Don't record bare ls commands
+    "^cd ",
+    "^exit",
+    "^clear",
+    "^cls",
+]
+
+# ── Sync (optional — comment out to use local only) ───────────────────────────
+# To self-host: atuin server start (see Atuin docs)
+# To use atuin.sh cloud (E2E encrypted):
+#   atuin login -u <username>
+#   atuin sync
+#
+# [sync]
+# address = "https://api.atuin.sh"    # or your self-hosted address
+# [keys]
+# key_path = "~/.config/atuin/key"

@@ -1,0 +1,21 @@
+{{- /* Skip on server profile — shell is managed separately */ -}}
+{{- if ne .profile "server" -}}
+#!/bin/bash
+set -euo pipefail
+
+# ── Set Zsh as default shell if not already ──────────────────────────────────
+ZSH_PATH=$(command -v zsh)
+CURRENT_SHELL=$(getent passwd "$USER" | cut -d: -f7)
+
+if [ "$CURRENT_SHELL" != "$ZSH_PATH" ]; then
+    echo "==> Setting default shell to $ZSH_PATH..."
+    # Add zsh to allowed shells if not present
+    if ! grep -qxF "$ZSH_PATH" /etc/shells; then
+        echo "$ZSH_PATH" | sudo tee -a /etc/shells
+    fi
+    chsh -s "$ZSH_PATH"
+    echo "==> Default shell set to zsh. Re-login for it to take effect."
+else
+    echo "==> Default shell is already zsh, skipping."
+fi
+{{- end }}

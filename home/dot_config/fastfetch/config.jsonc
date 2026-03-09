@@ -1,0 +1,34 @@
+{
+    // ── Fastfetch config ──────────────────────────────────────────────────────
+    // Managed by chezmoi — edit with: chezmoi edit --apply ~/.config/fastfetch/config.jsonc
+    // Catppuccin Mocha colours applied via display.color
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "type": "auto",
+        "padding": { "top": 1, "left": 1 }
+    },
+    "display": {
+        "separator": "  ",
+        "color": {
+            "keys":  "blue",
+            "title": "cyan"
+        },
+        "brightColor": true
+    },
+    "modules": [
+        "title",
+        "separator",
+        { "type": "os",       "key": " OS",       "keyColor": "blue"   },
+        { "type": "host",     "key": " Host",     "keyColor": "blue"   },
+        { "type": "kernel",   "key": " Kernel",   "keyColor": "mauve"  },
+        { "type": "uptime",   "key": " Uptime",   "keyColor": "green"  },
+        { "type": "shell",    "key": " Shell",    "keyColor": "yellow" },
+        { "type": "terminal", "key": " Terminal", "keyColor": "peach"  },
+        { "type": "cpu",      "key": " CPU",      "keyColor": "red"    },
+        { "type": "memory",   "key": " RAM",      "keyColor": "teal"   },
+        { "type": "disk",     "key": " Disk",     "keyColor": "sapphire", "folders": "/" },
+        { "type": "localip",  "key": " IP",       "keyColor": "lavender", "showIpv4": true, "showIpv6": false },
+        "separator",
+        { "type": "colors", "paddingLeft": 2, "symbol": "circle" }
+    ]
+}

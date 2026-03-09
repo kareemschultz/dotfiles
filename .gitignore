@@ -1,0 +1,4 @@
+# Local machine config — never commit
+home/.chezmoi.toml
+.DS_Store
+*.swp

@@ -1,0 +1,15 @@
+{
+  "editor:toggle-bold": [{"modifiers": ["Mod"], "key": "B"}],
+  "editor:toggle-italic": [{"modifiers": ["Mod"], "key": "I"}],
+  "editor:toggle-code": [{"modifiers": ["Mod"], "key": "`"}],
+  "app:go-back": [{"modifiers": ["Mod"], "key": "["}],
+  "app:go-forward": [{"modifiers": ["Mod"], "key": "]"}],
+  "switcher:open": [{"modifiers": ["Mod"], "key": "P"}],
+  "global-search:open": [{"modifiers": ["Mod", "Shift"], "key": "F"}],
+  "command-palette:open": [{"modifiers": ["Mod", "Shift"], "key": "P"}],
+  "obsidian-git:pull": [{"modifiers": ["Mod", "Shift"], "key": "G"}],
+  "obsidian-git:commit-and-sync": [{"modifiers": ["Mod", "Shift"], "key": "S"}],
+  "quickadd:runQuickAdd": [{"modifiers": ["Mod", "Shift"], "key": "A"}],
+  "periodic-notes:open-daily-note": [{"modifiers": ["Mod"], "key": "D"}],
+  "dataview:dataview-rebuild-current": [{"modifiers": ["Mod", "Shift"], "key": "R"}]
+}
