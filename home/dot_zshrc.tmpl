@@ -65,7 +65,7 @@ _ANTIDOTE_SOURCE="${HOMEBREW_PREFIX}/share/antidote/antidote.zsh"
 _ANTIDOTE_SOURCE="$HOME/.antidote/antidote.zsh"
 # Install antidote if missing (Linux)
 if [[ ! -f "$_ANTIDOTE_SOURCE" ]]; then
-    git clone --depth=1 https://github.com/mattmc3/antidote.git "$HOME/.antidote"
+    GIT_CONFIG_GLOBAL=/dev/null git clone --depth=1 https://github.com/mattmc3/antidote.git "$HOME/.antidote"
 fi
 {{- end }}
 [[ -f "$_ANTIDOTE_SOURCE" ]] && source "$_ANTIDOTE_SOURCE"
