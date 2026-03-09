@@ -83,13 +83,13 @@ sudo apt-get install -y \
 # ── Neovim (appimage, apt version is too old) ─────────────────────────────────
 if ! command -v nvim &>/dev/null; then
     echo "==> Installing Neovim..."
-    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
-    chmod u+x nvim-linux-x86_64.appimage
-    sudo mv nvim-linux-x86_64.appimage /usr/local/bin/nvim
+    mkdir -p "$HOME/.local/bin"
+    curl -Lo "$HOME/.local/bin/nvim" https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+    chmod u+x "$HOME/.local/bin/nvim"
 fi
 
 # ── Starship ──────────────────────────────────────────────────────────────────
-command -v starship &>/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- -y
+command -v starship &>/dev/null || curl -sS https://starship.rs/install.sh | sh -s -- -y --bin-dir "$HOME/.local/bin"
 
 # ── Atuin ─────────────────────────────────────────────────────────────────────
 command -v atuin &>/dev/null || curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
@@ -119,7 +119,8 @@ if ! command -v lazygit &>/dev/null; then
     LG_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
     curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LG_VERSION}/lazygit_${LG_VERSION}_Linux_x86_64.tar.gz"
     tar xf lazygit.tar.gz lazygit
-    sudo install lazygit /usr/local/bin
+    mkdir -p "$HOME/.local/bin"
+    install -m 755 lazygit "$HOME/.local/bin/lazygit"
     rm lazygit.tar.gz lazygit
 fi
 
